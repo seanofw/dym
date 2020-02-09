@@ -1,7 +1,7 @@
 # Dym
 
-Version 1.0
-Copyright (C) 2020 by Sean Werkema
+Version 1.0 \
+Copyright (C) 2020 by Sean Werkema \
 MIT Open-Source License
 
 -----------------------------------------------------------------------------
