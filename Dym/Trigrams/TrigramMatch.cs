@@ -21,7 +21,7 @@
 		/// <summary>
 		/// Optional tag data associated with the found word.
 		/// </summary>
-		public object? Tag { get; internal set; } = default;
+		public object? Tag { get; }
 
 		/// <summary>
 		/// The actual TrigramWord object that was found.
@@ -37,12 +37,19 @@
 		/// </summary>
 		/// <param name="word">The matching word that was found.</param>
 		/// <param name="similarity">How similar that word is, on a range of [0, 1].</param>
-		public TrigramMatch(TrigramWord word, double similarity)
+		public TrigramMatch(TrigramWord word, double similarity, object? tag)
 		{
 			Word = word.Text;
 			TrigramWord = word;
 			Similarity = similarity;
+			Tag = tag;
 		}
+
+		/// <summary>
+		/// Add a tag to this match.
+		/// </summary>
+		public TrigramMatch WithTag(object? tag)
+			=> new TrigramMatch(TrigramWord, Similarity, tag);
 
 		/// <summary>
 		/// Convert this match to a string, for easy debugging.

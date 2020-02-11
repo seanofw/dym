@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Dym.Collections;
+using Dym.Extensions;
 
 namespace Dym.Trigrams
 {
@@ -32,7 +33,7 @@ namespace Dym.Trigrams
 		private Dictionary<string, (TrigramWord, object?)> _dictionary = new Dictionary<string, (TrigramWord, object?)>();
 
 		/// <summary>
-		/// A lookup table from 24-bit trigrams to sets of all of the words that contain each trigram.
+		/// A lookup table from 18-bit trigrams to sets of all of the words that contain each trigram.
 		/// </summary>
 		private Dictionary<int, List<TrigramWord>> _gramLookup = new Dictionary<int, List<TrigramWord>>();
 
@@ -62,7 +63,7 @@ namespace Dym.Trigrams
 		{
 			_dictionary.Add(word.NormalizedText, (word, tag));
 			
-			foreach (int gram in word.Grams)
+			foreach (int gram in word.Trigrams)
 			{
 				if (!_gramLookup.TryGetValue(gram, out List<TrigramWord>? set))
 					_gramLookup.Add(gram, set = new List<TrigramWord>());
@@ -146,7 +147,7 @@ namespace Dym.Trigrams
 			bool result = _dictionary.Remove(word.NormalizedText);
 			if (!result) return false;
 
-			foreach (int gram in word.Grams)
+			foreach (int gram in word.Trigrams)
 			{
 				if (_gramLookup.TryGetValue(gram, out List<TrigramWord>? set))
 				{
@@ -289,11 +290,12 @@ namespace Dym.Trigrams
 		/// Fill in tags into the given set of matches.
 		/// </summary>
 		/// <param name="matches">The matches to populate with tags.</param>
-		private void PopulateTags(IEnumerable<TrigramMatch> matches)
+		private void PopulateTags(List<TrigramMatch> matches)
 		{
-			foreach (TrigramMatch match in matches)
+			for (int i = 0; i < matches.Count; i++)
 			{
-				match.Tag = _dictionary[match.TrigramWord!.NormalizedText].Item2;
+				TrigramMatch match = matches[i];
+				matches[i] = match.WithTag(_dictionary[match.TrigramWord!.NormalizedText].Item2);
 			}
 		}
 
@@ -349,7 +351,7 @@ namespace Dym.Trigrams
 				double similarity = pattern.CalculateSimilarity(word);
 				if (similarity < minimumSimilarity)
 					continue;
-				TrigramMatch match = new TrigramMatch(word, similarity);
+				TrigramMatch match = new TrigramMatch(word, similarity, null);
 				rawMatches.Add(match);
 			}
 
@@ -379,11 +381,13 @@ namespace Dym.Trigrams
 		/// <returns>A reasonable initial set of candidate matches.</returns>
 		private HashSet<TrigramWord> FindGoodCandidates(TrigramWord pattern)
 		{
-			HashSet<TrigramWord> candidates = new HashSet<TrigramWord>();
+			// Start with a large HashSet, since we often end up with a lot of data.
+			// This will reduce resizes and improve performance, at the cost of some memory (temporarily).
+			HashSet<TrigramWord> candidates = new HashSet<TrigramWord>(1021);	// Largest prime under 1024.
 
-			for (int i = 1; i < pattern.Grams.Length - 1; i++)
+			for (int i = 1; i < pattern.Trigrams.Length - 1; i++)
 			{
-				int gram = pattern.Grams[i];
+				int gram = pattern.Trigrams[i];
 				if (_gramLookup.TryGetValue(gram, out List<TrigramWord>? gramMatches))
 				{
 					foreach (TrigramWord word in gramMatches)
@@ -406,8 +410,10 @@ namespace Dym.Trigrams
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private bool IsCandidateExtremelyUnlikely(TrigramWord pattern, TrigramWord word)
-			=> (word.NormalizedText.Length > pattern.NormalizedText.Length * 2
-				|| pattern.NormalizedText.Length > word.NormalizedText.Length * 2);
+			=> unchecked(
+				   (word.NormalizedText.Length >> 1) > pattern.NormalizedText.Length
+				|| (pattern.NormalizedText.Length >> 1) > word.NormalizedText.Length
+			);
 
 		/// <summary>
 		/// If we can't find enough possible candidates looking for "good" matches, then
@@ -421,7 +427,7 @@ namespace Dym.Trigrams
 		/// <param name="candidates">The candidate collection to add to.</param>
 		private void AddMediocreCandidates(TrigramWord pattern, HashSet<TrigramWord> candidates)
 		{
-			int gram = pattern.Grams[0];
+			int gram = pattern.Trigrams[0];
 			if (_gramLookup.TryGetValue(gram, out List<TrigramWord>? gramMatches))
 			{
 				foreach (TrigramWord word in gramMatches)
@@ -432,7 +438,7 @@ namespace Dym.Trigrams
 				}
 			}
 
-			gram = pattern.Grams[pattern.Grams.Length - 1];
+			gram = pattern.Trigrams[pattern.Trigrams.Length - 1];
 			if (_gramLookup.TryGetValue(gram, out gramMatches))
 			{
 				foreach (TrigramWord word in gramMatches)

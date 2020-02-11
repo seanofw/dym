@@ -8,7 +8,7 @@ namespace Dym.Trigrams
 	/// after "normalizing" it to remove punctuation, whitespace, and accent marks,
 	/// and case-fold any alphabetic letters.  This is immutable once constructed.
 	/// </summary>
-	public class TrigramWord : IEquatable<TrigramWord>
+	public class TrigramWord : IEquatable<TrigramWord>, IComparable<TrigramWord>, IComparable
 	{
 		#region Properties and fields
 
@@ -25,7 +25,7 @@ namespace Dym.Trigrams
 		/// <summary>
 		/// The trigrams, sorted for fast comparison.
 		/// </summary>
-		internal int[] Grams { get; }
+		internal int[] Trigrams { get; }
 
 		/// <summary>
 		/// The hash code of this object, lazily precomputed.
@@ -56,8 +56,8 @@ namespace Dym.Trigrams
 				throw new ArgumentException("Text in exclusively non-Latin languages is not supported.", nameof(text));
 
 			Text = text;
-			Grams = CalculateGrams(NormalizedText);
-			Array.Sort(Grams);
+			Trigrams = CalculateGrams(NormalizedText);
+			Array.Sort(Trigrams);
 		}
 
 		#endregion
@@ -73,52 +73,134 @@ namespace Dym.Trigrams
 		/// <returns>A similarity score in the range of [0, 1].</returns>
 		public double CalculateSimilarity(TrigramWord other)
 		{
-			if (other == null!)
-				throw new ArgumentNullException(nameof(other));
-
-			// This is really just calculating the intersection of Grams and other.Grams,
-			// counting up how many grams each collection shares.  But because they're both
-			// sorted and pure integers, we can do this much more efficiently than something
-			// like HashSet<string>.IntersectWith().  Note that unlike simple sets, this
-			// correctly calculates duplicates; if the same gram is featured multiple times
-			// in a given set, it will be expected to be found multiple times in the other
-			// set, too.
-
-			int[] g1 = Grams, g2 = other.Grams;
-			int i1 = 0, i2 = 0;
-			int e1 = g1.Length, e2 = g2.Length;
-			int match = 0;
-
-			// Spin over each set, comparing the current value of one to the current value
-			// of the other; when they don't match, "fast forward" over non-matching elements
-			// until they do again.
-			while (i1 < e1 && i2 < e2)
+			unchecked
 			{
-				int a = g1[i1], b = g2[i2];
-				if (a == b)
-				{
-					i1++;
-					i2++;
-					match += 2;
-				}
-				else if (a < b)
-					i1++;
-				else
-					i2++;
-			}
+				if (other == null!)
+					throw new ArgumentNullException(nameof(other));
 
-			// The match scores are naturally biased toward the bottom of [0, 1], so the square
-			// root un-biases them back toward something closer to a linear distribution.
-			return Math.Sqrt((double)match / (e1 + e2));
+				// This is really just calculating the intersection of Grams and other.Grams,
+				// counting up how many grams each collection shares.  But because they're both
+				// sorted and pure integers, we can do this much more efficiently than something
+				// like HashSet<string>.IntersectWith().  Note that unlike simple sets, this
+				// correctly calculates duplicates; if the same gram is featured multiple times
+				// in a given set, it will be expected to be found multiple times in the other
+				// set, too.
+
+				int[] g1 = Trigrams, g2 = other.Trigrams;
+				uint i1 = 0, i2 = 0;
+				uint e1 = (uint)g1.Length, e2 = (uint)g2.Length;
+				uint match = 0;
+
+				// Spin over each set, comparing the current value of one to the current value
+				// of the other; when they don't match, "fast forward" over non-matching elements
+				// until they do again.  This is partially-unrolled for speed, and inside-out:
+				// instead of counting up differences and subtracting those from the total, this
+				// counts up matches and can then early-out as soon as it runs out of significant
+				// content.
+				if (i1 < e1 && i2 < e2)
+				{
+					int a = g1[i1], b = g2[i2];
+					while (true)
+					{
+						// First copy.
+						if (a == b)
+						{
+							match += 2;
+							if (++i1 >= e1 || ++i2 >= e2) break;
+							a = g1[i1];
+							b = g2[i2];
+						}
+						else if (a < b)
+						{
+							if (++i1 >= e1) break;
+							a = g1[i1];
+						}
+						else
+						{
+							if (++i2 >= e2) break;
+							b = g2[i2];
+						}
+
+						// Second copy.
+						if (a == b)
+						{
+							match += 2;
+							if (++i1 >= e1 || ++i2 >= e2) break;
+							a = g1[i1];
+							b = g2[i2];
+						}
+						else if (a < b)
+						{
+							if (++i1 >= e1) break;
+							a = g1[i1];
+						}
+						else
+						{
+							if (++i2 >= e2) break;
+							b = g2[i2];
+						}
+
+						// Third copy.
+						if (a == b)
+						{
+							match += 2;
+							if (++i1 >= e1 || ++i2 >= e2) break;
+							a = g1[i1];
+							b = g2[i2];
+						}
+						else if (a < b)
+						{
+							if (++i1 >= e1) break;
+							a = g1[i1];
+						}
+						else
+						{
+							if (++i2 >= e2) break;
+							b = g2[i2];
+						}
+
+						// Fourth copy.
+						if (a == b)
+						{
+							match += 2;
+							if (++i1 >= e1 || ++i2 >= e2) break;
+							a = g1[i1];
+							b = g2[i2];
+						}
+						else if (a < b)
+						{
+							if (++i1 >= e1) break;
+							a = g1[i1];
+						}
+						else
+						{
+							if (++i2 >= e2) break;
+							b = g2[i2];
+						}
+					}
+				}
+
+				// The match scores are naturally biased toward the bottom of [0, 1], so the square
+				// root un-biases them back toward something closer to a linear distribution.
+				return Math.Sqrt((double)match / (e1 + e2));
+			}
 		}
 
 		#endregion
 
 		#region Normalization
 
+		private const char NullChar = ' ';
+		private const char FieldSeparator = '"';
+		private const char Whitespace = '/';
+		private const char TerminatorPunctuation = '.';
+		private const char JoinerPunctuation = '-';
+		private const char Alphanumeric = '0';
+		private const char LastAscii = '\x7F';
+
 		private static readonly char[] _remapTable =
 		{
-			'/', '/', '/', '/', '/', '/', '/', '/', '/', ' ', ' ', '/', '/', ' ', '/', '/',
+			'/', '/', '/', '/', '/', '/', '/', '/', '/', '"', '"', '/', '/', '"', '/', '/',
 			'/', '/', '/', '/', '/', '/', '/', '/', '/', '/', '/', '/', '/', '/', '/', '/',
 			'/', '.', '.', '.', '.', '.', '.', '.', '.', '.', '-', '-', '.', '-', '.', '-',
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '.', '.', '-', '.', '.',
@@ -156,40 +238,41 @@ namespace Dym.Trigrams
 
 			char[] buffer = new char[text.Length];
 			int src = 0, dest = 0, end = text.Length;
+			char lastch = '\0';
 
 			while (src < end)
 			{
 				char ch = text[src++];
-				ch = (ch < 128 ? _remapTable[ch] : '/');
-				if (ch >= '0')
-					buffer[dest++] = ch;
-				else if (ch == '/')
+				ch = (ch <= LastAscii ? _remapTable[ch] : Whitespace);
+				if (ch >= Alphanumeric)
+					lastch = buffer[dest++] = ch;
+				else if (ch == Whitespace)
 				{
 					if (dest > 0)
 					{
-						if (buffer[dest - 1] >= '0')
-							buffer[dest++] = '/';
-						else if (buffer[dest - 1] > ' ')
-							buffer[dest] = '/';
+						if (lastch >= Alphanumeric)
+							lastch = buffer[dest++] = Whitespace;
+						else if (lastch > FieldSeparator)
+							lastch = buffer[dest - 1] = Whitespace;
 					}
 				}
-				else if (ch == ' ')
+				else if (ch == FieldSeparator)
 				{
 					if (dest > 0)
 					{
-						if (buffer[dest - 1] >= '0')
-							buffer[dest++] = ' ';
-						else buffer[dest] = ' ';
+						if (lastch >= Alphanumeric)
+							lastch = buffer[dest++] = FieldSeparator;
+						else lastch = buffer[dest - 1] = FieldSeparator;
 					}
 				}
 				else
 				{
-					if (dest > 0 && buffer[dest - 1] >= '0')
-						buffer[dest++] = ch;
+					if (lastch >= Alphanumeric)
+						lastch = buffer[dest++] = ch;
 				}
 			}
 
-			if (dest > 0 && buffer[dest - 1] < '0')
+			if (dest > 0 && lastch < Alphanumeric)
 				dest--;
 
 			return new string(buffer, 0, dest);
@@ -212,8 +295,8 @@ namespace Dym.Trigrams
 		/// will be represented as 18-bit integers, with each input character collapsed
 		/// into a single 6-bit component.  We know that we can collapse them to 6 bits
 		/// each, because after normalization, the input will only use ASCII characters
-		/// in the range of [45, 90], which is a mere 56 code points (and actually, we
-		/// don't even use all of those:  In reality, only 26+10+4 = 40 total code points
+		/// in the range of [32, 90], which is a mere 59 code points (and actually, we
+		/// don't even use all of those:  In reality, only 26+10+5 = 41 total code points
 		/// will ever be used).
 		/// </summary>
 		/// <param name="text">The text to generate a set of trigram values from.</param>
@@ -226,21 +309,21 @@ namespace Dym.Trigrams
 
 			if (text.Length == 1)
 			{
-				grams[0] = MakeGram(0, 0, c0 = text[0]);
-				grams[1] = MakeGram(0, c0, 0);
-				grams[2] = MakeGram(c0, 0, 0);
+				grams[0] = MakeGram(NullChar, NullChar, c0 = text[0]);
+				grams[1] = MakeGram(NullChar, c0, NullChar);
+				grams[2] = MakeGram(c0, NullChar, NullChar);
 			}
 			else if (text.Length == 2)
 			{
-				grams[0] = MakeGram(0, 0, c0 = text[0]);
-				grams[1] = MakeGram(0, c0, c1 = text[1]);
-				grams[2] = MakeGram(c0, c1, 0);
-				grams[3] = MakeGram(c1, 0, 0);
+				grams[0] = MakeGram(NullChar, NullChar, c0 = text[0]);
+				grams[1] = MakeGram(NullChar, c0, c1 = text[1]);
+				grams[2] = MakeGram(c0, c1, NullChar);
+				grams[3] = MakeGram(c1, NullChar, NullChar);
 			}
 			else
 			{
-				grams[0] = MakeGram(0, 0, c0 = text[0]);
-				grams[1] = MakeGram(0, c0, c1 = text[1]);
+				grams[0] = MakeGram(NullChar, NullChar, c0 = text[0]);
+				grams[1] = MakeGram(NullChar, c0, c1 = text[1]);
 				int n = 0;
 				while (n < text.Length - 2)
 				{
@@ -249,8 +332,8 @@ namespace Dym.Trigrams
 					c0 = c1;
 					c1 = c2;
 				}
-				grams[n++ + 2] = MakeGram(c0, c1, 0);
-				grams[n + 2] = MakeGram(c1, 0, 0);
+				grams[n++ + 2] = MakeGram(c0, c1, NullChar);
+				grams[n + 2] = MakeGram(c1, NullChar, NullChar);
 			}
 
 			return grams;
@@ -262,9 +345,9 @@ namespace Dym.Trigrams
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static int MakeGram(ushort c1, ushort c2, ushort c3)
-			=>    (c1 << 16)
-				| (c2 << 8)
-				|  c3;
+			   => ((c1 - 32) << 12)
+				| ((c2 - 32) << 6)
+				|  (c3 - 32);
 
 		#endregion
 
@@ -309,6 +392,25 @@ namespace Dym.Trigrams
 		/// </summary>
 		public static bool operator !=(TrigramWord a, TrigramWord b)
 			=> ReferenceEquals(a, null) ? !ReferenceEquals(b, null) : !a.Equals(b);
+
+		#endregion
+
+		#region Order comparison
+
+		/// <summary>
+		/// Compare these two words for lexicographic ordering (based on their normalized text).
+		/// Null always comes before any real data.
+		/// </summary>
+		public int CompareTo(TrigramWord? other)
+			=> ReferenceEquals(other, null) ? +1
+				: NormalizedText.CompareTo(other.NormalizedText);
+
+		/// <summary>
+		/// Compare this word to another, for lexicographic ordering (based on their normalized text).
+		/// Null always comes before any real data.
+		/// </summary>
+		public int CompareTo(object? other)
+			=> CompareTo(other as TrigramWord);
 
 		#endregion
 

@@ -27,7 +27,7 @@ namespace SpellCheckerDemo
 			stopwatch.Stop();
 			TimeSpan buildTime = stopwatch.Elapsed;
 
-			Console.WriteLine("Loaded 'dictionary.txt' in {0} msec, and built database in {1} msec.",
+			Console.WriteLine("Loaded 'dictionary.txt' in {0:0.0} msec, and built database in {1:0.0} msec.",
 				loadTime.TotalMilliseconds, buildTime.TotalMilliseconds);
 
 			// Now spell-check whatever command-line arguments we were given.
@@ -48,7 +48,7 @@ namespace SpellCheckerDemo
 
 			TimeSpan matchTime = stopwatch.Elapsed;
 			TimeSpan averageMatchTime = matchTime / args.Length;
-			Console.WriteLine("Average time to match each word: {0} msec.", averageMatchTime.TotalMilliseconds);
+			Console.WriteLine("Average time to match each word: {0:0.00} msec.", averageMatchTime.TotalMilliseconds);
 		}
 
 		private static string[] LoadDictionary(string dictionaryFilename)
