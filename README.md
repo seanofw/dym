@@ -1,3 +1,5 @@
+![.NET Core](https://github.com/seanofw/dym/workflows/.NET%20Core/badge.svg?branch=master)
+
 # Dym
 
 Version 1.0 \
