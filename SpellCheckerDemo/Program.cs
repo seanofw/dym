@@ -47,7 +47,7 @@ namespace SpellCheckerDemo
 			}
 
 			TimeSpan matchTime = stopwatch.Elapsed;
-			TimeSpan averageMatchTime = matchTime / args.Length;
+			TimeSpan averageMatchTime = matchTime / Math.Max(args.Length, 1);
 			Console.WriteLine("Average time to match each word: {0:0.00} msec.", averageMatchTime.TotalMilliseconds);
 		}
 
