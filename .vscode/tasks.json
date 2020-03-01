@@ -32,7 +32,7 @@
             }
         },
         {
-            "label": "build release",
+            "label": "build-release",
             "command": "dotnet",
             "type": "process",
             "args": [
@@ -49,7 +49,7 @@
             "group": "build"
         },
         {
-            "label": "publish",
+            "label": "build-demo-exe",
             "command": "dotnet",
             "type": "process",
             "args": [
@@ -67,16 +67,21 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "watch",
-            "command": "dotnet",
+            "label": "nuget-pack",
+            "command": "nuget",
             "type": "process",
             "args": [
-                "watch",
-                "run",
-                "${workspaceFolder}/SpellCheckerDemo/SpellCheckerDemo.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
+                "pack",
+                ".nuspec",
+                "-Symbols",
+                "-SymbolPackageFormat",
+                "snupkg",
+                "-OutputDirectory",
+                "bin"
             ],
+            "options": {
+                "cwd": "${workspaceFolder}/Dym"
+            },
             "problemMatcher": "$msCompile"
         }
     ]
