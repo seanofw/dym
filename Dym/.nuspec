@@ -12,7 +12,7 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>A "Did You Mean" fuzzy-text-comparison and fuzzy-search library for .NET Core.</description>
         <tags>fuzzy text pattern matching ngrams kgrams trigrams</tags>
-        <repository type="git" url="https://github.com/seanofw/dym.git" branch="master" commit="b38e7d79fef554a45f5fde82cfe41750329d296e" />
+        <repository type="git" url="https://github.com/seanofw/dym.git" branch="master" commit="afd27184093a84768334cd6bbe41de4443bcf282" />
     </metadata>
     <files>
         <file src="bin\Release\netcoreapp2.1\*.dll" target="lib\netcoreapp2.1" />
