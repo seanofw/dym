@@ -13,6 +13,8 @@
   <PropertyGroup>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <RootNamespace>Clockwerk.Dym</RootNamespace>
+    <AssemblyName>Clockwerk.Dym</AssemblyName>
   </PropertyGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Dym.Extensions
+namespace Clockwerk.Dym.Extensions
 {
 	public static class ListExtensions
 	{

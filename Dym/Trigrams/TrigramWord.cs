@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace Dym.Trigrams
+namespace Clockwerk.Dym.Trigrams
 {
 	/// <summary>
 	/// Create a "word" object based on the trigrams found in the given string,

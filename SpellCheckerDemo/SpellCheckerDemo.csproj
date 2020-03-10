@@ -5,6 +5,8 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <LangVersion>8.0</LangVersion>
+    <AssemblyName>Clockwerk.Dym.SpellCheckerDemo</AssemblyName>
+    <RootNamespace>Clockwerk.Dym.SpellCheckerDemo</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

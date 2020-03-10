@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Dym.Trigrams;
+using Clockwerk.Dym.Trigrams;
 
-namespace SpellCheckerDemo
+namespace Clockwerk.Dym.SpellCheckerDemo
 {
 	public static class Program
 	{

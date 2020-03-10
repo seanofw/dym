@@ -1,4 +1,4 @@
-﻿namespace Dym.Trigrams
+﻿namespace Clockwerk.Dym.Trigrams
 {
 	/// <summary>
 	/// A match of a pattern to a known word.

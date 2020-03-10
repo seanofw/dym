@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-namespace Dym.Collections
+namespace Clockwerk.Dym.Collections
 {
 	/// <summary>
 	/// This class implements the Heap data structure, which provides

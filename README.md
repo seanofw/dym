@@ -13,7 +13,7 @@ MIT Open-Source License
 Dym is short for "Did You Mean?" and is a .NET Core library for fuzzy-matching
 unknown inputs to a dictionary of known words or phrases.  The current
 implementation provides a high-speed trigram/shingle matcher, which is a good
-technique for matching very noisy inputs.
+technique for matching noisy text inputs.
 
 Some scenarios where Dym can be useful:
 
@@ -34,7 +34,7 @@ typical PC, and Dym can then find suggestions for a misspelled word in under
 
 ## Basic Usage
 
-Dym is a NuGet library, and currently has builds for .NET Core 3.0.  It has
+Dym is a NuGet library, and currently has builds for .NET Core 2.1+.  It has
 no dependencies:  Just install it into your project, and then add a suitable
 `using` directive.
 
@@ -43,7 +43,7 @@ no dependencies:  Just install it into your project, and then add a suitable
 First, you need to construct a "dictionary" of all of your known-good words:
 
 ```c#
-using Dym.Trigrams;
+using Clockwerk.Dym.Trigrams;
 
 string[] knownOptions = { "status", "push", "clone", "merge" };
 
@@ -258,7 +258,8 @@ include:
 
 Dym was initially written in February 2020, intentionally open-source this
 time, based on concepts Sean Werkema had devised and implemented in three (!)
-separate previous closed-source libraries for various customers.
+separate previous closed-source libraries for various customers, and was
+first published to Nuget in March 2020.
 
 For questions or support, please file a GitHub issue.
 

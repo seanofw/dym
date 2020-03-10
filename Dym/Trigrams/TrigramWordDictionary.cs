@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using Dym.Collections;
-using Dym.Extensions;
+using Clockwerk.Dym.Collections;
+using Clockwerk.Dym.Extensions;
 
-namespace Dym.Trigrams
+namespace Clockwerk.Dym.Trigrams
 {
 	/// <summary>
 	/// A "dictionary" of known-good words, based on trigram shingles.  Each known-good
