@@ -231,7 +231,7 @@ namespace Clockwerk.Dym.Trigrams
 		/// </summary>
 		/// <param name="text">The text to "normalize."</param>
 		/// <returns>The "normalized" input string.</returns>
-		private static string Normalize(string text)
+		public static string Normalize(string text)
 		{
 			if (!IsAscii(text))
 				text = text.Normalize(System.Text.NormalizationForm.FormD);
