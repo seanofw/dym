@@ -254,10 +254,11 @@ namespace Clockwerk.Dym.Trigrams
 		/// <param name="maximumWords">The maximum number of answers to return.</param>
 		/// <param name="minimumSimilarity">The minimum allowed similarity of each matching word.</param>
 		/// <param name="includeTags">Whether to include tag data for each matching word.</param>
+		/// <param name="removeExtremelyUnlikely">Whether words with substantially more or fewer trigrams should be removed.</param>
 		/// <returns>The list of matching words in the dictionary, if any.</returns>
 		public List<TrigramMatch> Match(string pattern,
-			int maximumWords = 100, double minimumSimilarity = 0.5, bool includeTags = true)
-			=> Match(new TrigramWord(pattern), maximumWords, minimumSimilarity, includeTags);
+			int maximumWords = 100, double minimumSimilarity = 0.5, bool includeTags = true, bool removeExtremelyUnlikely = true)
+			=> Match(new TrigramWord(pattern), maximumWords, minimumSimilarity, includeTags, removeExtremelyUnlikely);
 
 		/// <summary>
 		/// Match the given "pattern" word against the dictionary, trying to find words in
@@ -267,11 +268,12 @@ namespace Clockwerk.Dym.Trigrams
 		/// <param name="maximumWords">The maximum number of answers to return.</param>
 		/// <param name="minimumSimilarity">The minimum allowed similarity of each matching word.</param>
 		/// <param name="includeTags">Whether to include tag data for each matching word.</param>
+		/// <param name="removeExtremelyUnlikely">Whether words with substantially more or fewer trigrams should be removed.</param>
 		/// <returns>The list of matching words in the dictionary, if any.</returns>
 		public List<TrigramMatch> Match(TrigramWord pattern,
-			int maximumWords = 100, double minimumSimilarity = 0.5, bool includeTags = true)
+			int maximumWords = 100, double minimumSimilarity = 0.5, bool includeTags = true, bool removeExtremelyUnlikely = true)
 		{
-			HashSet<TrigramWord> candidates = FindGoodCandidates(pattern);
+			HashSet<TrigramWord> candidates = FindGoodCandidates(pattern, removeExtremelyUnlikely);
 
 			if (candidates.Count < maximumWords * 2)
 				AddMediocreCandidates(pattern, candidates);
@@ -378,8 +380,9 @@ namespace Clockwerk.Dym.Trigrams
 		/// "hel", "ell", or "llo", which represents a "good" initial set of candidates to try.
 		/// </summary>
 		/// <param name="pattern">The pattern to search for.</param>
+		/// <param name="removeExtremelyUnlikely">Whether words with substantially more or fewer trigrams should be removed.</param>
 		/// <returns>A reasonable initial set of candidate matches.</returns>
-		private HashSet<TrigramWord> FindGoodCandidates(TrigramWord pattern)
+		private HashSet<TrigramWord> FindGoodCandidates(TrigramWord pattern, bool removeExtremelyUnlikely = true)
 		{
 			// Start with a large HashSet, since we often end up with a lot of data.
 			// This will reduce resizes and improve performance, at the cost of some memory (temporarily).
@@ -392,7 +395,7 @@ namespace Clockwerk.Dym.Trigrams
 				{
 					foreach (TrigramWord word in gramMatches)
 					{
-						if (IsCandidateExtremelyUnlikely(pattern, word))
+						if (removeExtremelyUnlikely && IsCandidateExtremelyUnlikely(pattern, word))
 							continue;
 						candidates.Add(word);
 					}
