@@ -1,0 +1,10 @@
+include:
+  - project: microservices.app.rwth-aachen.de/core/deployment-scripts
+    ref: main
+    file: /ci/netcorepackage.yml
+
+variables:
+  CI_PARENT_PROJECT_URL: $CI_PROJECT_URL
+  CI_PARENT_PROJECT_NAME: $CI_PROJECT_TITLE
+  CI_PARENT_INCLUDE_REF: main
+
