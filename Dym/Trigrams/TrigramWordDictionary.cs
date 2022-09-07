@@ -393,13 +393,15 @@ namespace Clockwerk.Dym.Trigrams
 				int gram = pattern.Trigrams[i];
 				if (_gramLookup.TryGetValue(gram, out List<TrigramWord>? gramMatches))
 				{
-					if(!removeExtremelyUnlikely) {
+					if(!removeExtremelyUnlikely)
+					{
 						foreach (TrigramWord word in gramMatches)
 						{
 							candidates.Add(word);
 						}
 					}
-					else {
+					else
+					{
 						foreach (TrigramWord word in gramMatches)
 						{
 							if (IsCandidateExtremelyUnlikely(pattern, word))
