@@ -228,10 +228,14 @@ namespace Clockwerk.Dym.Trigrams
 		/// 
 		/// This works well for Latin-based inputs, but it basically destroys the input
 		/// for any non-Latin scripts (CJK ideographics, Cyrillic, Arabic, Hebrew, etc.).
+		///
+		/// <b>Warning:</b> This method is intended to be <i>internal</i>. Its behavior <i>may</i> change in a future
+		/// version. Anything that relies on it <i>must not</i> make assumptions about what the method does or how it
+		/// does it. For more information take a look at the pull request https://github.com/seanofw/dym/pull/1.
 		/// </summary>
 		/// <param name="text">The text to "normalize."</param>
 		/// <returns>The "normalized" input string.</returns>
-		private static string Normalize(string text)
+		public static string Normalize(string text)
 		{
 			if (!IsAscii(text))
 				text = text.Normalize(System.Text.NormalizationForm.FormD);
